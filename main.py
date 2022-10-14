@@ -1,3 +1,22 @@
+# *********************************************************************
+# The University of North Carolina at Greensboro
+# ----------------------------
+# Project/Request Number:  BitBucket migration to GitHub
+# ----------------------------
+# Purpose:  This takes code from the web and updates it to work with new BitBucket requirements.
+# This code automates the migration of repositories you can access to your organization in GitHub.
+#
+# ----------------------------
+# History/Audit Trail
+# Product: UNCG Custom Scripts
+# Python Version: 3.10.7
+# Ver     Ver Ref Number    Date        Dev Reason for Change
+# ------- --- ------------- ----------- --- -------------------------------
+# 1.0    1.0  XXXXXXXXXX   09/30/2022   MRC Initial Commit after refactor and updates
+# 1.0    1.1  XXXXXXXXXX   10/03/2022   MRC Initial code does not transfer the Repo Discription (Resolved)
+# *******************************************************************
+# Original header is below.
+
 # heavily inspired by https://gist.github.com/rbellamy/3c5033ba605a090824e8
 # gets everything from bitbucket and brings it across to GH, adding LFS where necessary for file size
 # then archives everything brought over
@@ -15,7 +34,7 @@ import os
 
 # your particulars
 bitbucket_user = 'mrchartier'
-bitbucket_pass = ''
+bitbucket_app_token = '' # MRC changed name from bitbucket_password to reflect BitBucket Changes
 bitbucket_org = 'uncg-erp'
 github_user = 'mrchartier-uncg'
 github_access_token = ''
@@ -23,7 +42,7 @@ github_org = 'uncg-its'
 
 
 def get_bitbucket_repos_page(url):
-    r = requests.get(url, auth=(bitbucket_user, bitbucket_pass))
+    r = requests.get(url, auth=(bitbucket_user, bitbucket_app_token))
     if r.status_code == 200:
         return r.json()
 
@@ -153,7 +172,7 @@ def delete(path):
 
 def migrate(bb_repo_name, bb_repo_clone_url, bb_repo_desc):
     repo_clone_url = ''.join([bb_repo_clone_url.split(
-        '@')[0], ':', bitbucket_pass, '@', bb_repo_clone_url.split('@')[1]])
+        '@')[0], ':', bitbucket_app_token, '@', bb_repo_clone_url.split('@')[1]])
     gh_repo = create_github_name(bb_repo_name, bb_repo_desc)
     print(f"{bb_repo_name} converted to {gh_repo}")
     if not create_github_repo(gh_repo):
